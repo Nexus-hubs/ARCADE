@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Classic Arcade Games Collection - Play Space Invaders, Modern Galaxian, and Super Breakout">
+    <title>ARCADE - Classic Games Collection</title>
+    <link rel="stylesheet" href="arcade-styles.css">
+</head>
+<body>
+    <!-- Scanlines overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="arcade-header">
+            <h1 class="arcade-title">ARCADE</h1>
+            <p class="arcade-subtitle">Classic Games Collection</p>
+        </header>
+
+        <!-- Games Grid -->
+        <div class="games-grid">
+            <!-- Space Invaders -->
+            <a href="space-invaders.html" class="game-card">
+                <div class="game-icon">👾</div>
+                <h2 class="game-title">Space Invaders</h2>
+                <p class="game-description">
+                    Defend Earth from waves of alien invaders. Move, shoot, and survive!
+                </p>
+                <span class="game-badge">Classic Arcade</span>
+                <div class="play-overlay"></div>
+            </a>
+
+            <!-- Modern Galaxian -->
+            <a href="modern-galaxian.html" class="game-card">
+                <div class="game-icon">🚀</div>
+                <h2 class="game-title">Modern Galaxian</h2>
+                <p class="game-description">
+                    Battle through waves of alien fighters with stunning modern graphics and power-ups.
+                </p>
+                <span class="game-badge">Modern Edition</span>
+                <div class="play-overlay"></div>
+            </a>
+
+            <!-- Super Breakout -->
+            <a href="super-breakout-claude-code.html" class="game-card">
+                <div class="game-icon">🎯</div>
+                <h2 class="game-title">Super Breakout</h2>
+                <p class="game-description">
+                    Smash through colorful bricks with precision. Chain combos for maximum score!
+                </p>
+                <span class="game-badge">Claude Code Edition</span>
+                <div class="play-overlay"></div>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="arcade-footer">
+            <p>Select a game to play • Use keyboard or mouse controls • Have fun!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Generate floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // Random horizontal position
+                particle.style.left = Math.random() * 100 + '%';
+
+                // Random animation duration between 10-20 seconds
+                const duration = 10 + Math.random() * 10;
+                particle.style.animationDuration = duration + 's';
+
+                // Random delay
+                particle.style.animationDelay = Math.random() * 5 + 's';
+
+                // Random opacity
+                particle.style.opacity = 0.2 + Math.random() * 0.3;
+
+                // Random color between primary and secondary glow
+                const hue = Math.random() > 0.5 ? 180 : 300; // cyan or magenta
+                particle.style.background = `hsl(${hue}, 100%, 50%)`;
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize particles on page load
+        window.addEventListener('DOMContentLoaded', createParticles);
+
+        // Add subtle mouse parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.game-card');
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+
+            cards.forEach((card, index) => {
+                const speed = (index + 1) * 2;
+                const x = mouseX * speed;
+                const y = mouseY * speed;
+
+                card.style.transform = `
+                    translateY(-8px)
+                    translateX(${x}px)
+                    translateY(${y}px)
+                `;
+            });
+        });
+
+        // Reset transform when mouse leaves
+        document.addEventListener('mouseleave', () => {
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => {
+                card.style.transform = '';
+            });
+        });
+
+        // Keyboard navigation
+        let selectedIndex = 0;
+        const gameCards = document.querySelectorAll('.game-card');
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                selectedIndex = (selectedIndex + 1) % gameCards.length;
+                gameCards[selectedIndex].focus();
+            } else if (e.key === 'ArrowLeft') {
+                selectedIndex = (selectedIndex - 1 + gameCards.length) % gameCards.length;
+                gameCards[selectedIndex].focus();
+            } else if (e.key === 'Enter') {
+                gameCards[selectedIndex].click();
+            }
+        });
+
+        // Add focus styles for keyboard navigation
+        gameCards.forEach((card, index) => {
+            card.setAttribute('tabindex', index);
+        });
+    </script>
+</body>
+</html>

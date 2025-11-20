@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="scanlines"></div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen active">
+        <div class="title-container">
+            <h1 class="game-title">
+                <span class="title-super">SPACE</span>
+                <span class="title-space">INVADERS</span>
+                <span class="title-invaders">2</span>
+            </h1>
+            <div class="alien-preview">
+                <div class="preview-row">
+                    <span class="alien-sprite small">👾</span>
+                    <span class="points">= 10 PTS</span>
+                </div>
+                <div class="preview-row">
+                    <span class="alien-sprite medium">👾</span>
+                    <span class="points">= 20 PTS</span>
+                </div>
+                <div class="preview-row">
+                    <span class="alien-sprite large">👾</span>
+                    <span class="points">= 30 PTS</span>
+                </div>
+                <div class="preview-row">
+                    <span class="alien-sprite ufo">🛸</span>
+                    <span class="points">= ??? PTS</span>
+                </div>
+            </div>
+            <button class="start-btn" id="startBtn">PRESS START</button>
+            <div class="controls-info">
+                <p>← → MOVE · SPACE SHOOT · P PAUSE</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="screen">
+        <div class="hud">
+            <div class="hud-left">
+                <span class="hud-label">SCORE</span>
+                <span class="hud-value" id="score">0000</span>
+            </div>
+            <div class="hud-center">
+                <span class="hud-label">LEVEL</span>
+                <span class="hud-value" id="level">01</span>
+            </div>
+            <div class="hud-right">
+                <span class="hud-label">LIVES</span>
+                <span class="hud-value" id="lives">❤️❤️❤️</span>
+            </div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="screen">
+        <div class="gameover-container">
+            <h2 class="gameover-title">GAME OVER</h2>
+            <div class="final-stats">
+                <p>FINAL SCORE: <span id="finalScore">0</span></p>
+                <p>LEVEL REACHED: <span id="finalLevel">1</span></p>
+            </div>
+            <button class="start-btn" id="restartBtn">PLAY AGAIN</button>
+            <button class="menu-btn" id="menuBtn">MAIN MENU</button>
+        </div>
+    </div>
+
+    <script src="sounds.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
