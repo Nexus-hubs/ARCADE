@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="All-in-One Arcade Games - Space Invaders, Modern Galaxian, and Super Breakout in a single page">
+    <title>ARCADE GAMES - All Games in One</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-glow: #00ffff;
+            --secondary-glow: #ff00ff;
+            --accent-glow: #00ff88;
+            --bg-dark: #0a0a0f;
+            --bg-darker: #050508;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a1f 50%, #0f0a1a 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.3;
+        }
+
+        /* Container */
+        .game-container {
+            position: relative;
+            z-index: 2;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header with back button */
+        .game-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: rgba(10, 10, 15, 0.95);
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-header.active {
+            display: flex;
+        }
+
+        .current-game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #fff, var(--primary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .back-button {
+            padding: 10px 25px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            border-radius: 8px;
+            color: var(--primary-glow);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .back-button:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .back-button::before {
+            content: '◄ ';
+        }
+
+        /* Main Menu */
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        .main-menu.hidden {
+            display: none;
+        }
+
+        .arcade-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow), var(--accent-glow));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 4s ease infinite;
+            margin-bottom: 15px;
+            text-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .arcade-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            color: rgba(0, 255, 255, 0.6);
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        /* Menu Cards */
+        .menu-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .menu-card {
+            background: rgba(20, 20, 30, 0.6);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 35px 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(0, 255, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .menu-card:hover::before {
+            opacity: 1;
+        }
+
+        .menu-card:hover {
+            border-color: var(--primary-glow);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.3),
+                        0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.5));
+            transition: transform 0.4s ease;
+        }
+
+        .menu-card:hover .menu-icon {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .menu-card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, var(--primary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-card-description {
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+        }
+
+        /* Game Frames */
+        .game-frame {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            border: none;
+            background: #000;
+        }
+
+        .game-frame.active {
+            display: block;
+        }
+
+        /* Footer info */
+        .menu-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        /* Loading indicator */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary-glow);
+            text-shadow: 0 0 20px var(--primary-glow);
+            z-index: 200;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        @keyframes pulse-loading {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .loading::after {
+            content: '...';
+            animation: pulse-loading 1.5s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .arcade-title {
+                font-size: 2rem;
+            }
+
+            .arcade-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .menu-cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .game-header {
+                padding: 15px;
+            }
+
+            .current-game-title {
+                font-size: 1rem;
+            }
+
+            .back-button {
+                padding: 8px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation for cards */
+        @keyframes card-appear {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-card {
+            animation: card-appear 0.6s ease-out backwards;
+        }
+
+        .menu-card:nth-child(1) { animation-delay: 0.1s; }
+        .menu-card:nth-child(2) { animation-delay: 0.2s; }
+        .menu-card:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Scanlines overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Loading indicator -->
+    <div class="loading" id="loading">LOADING</div>
+
+    <!-- Game Header (shown when playing) -->
+    <div class="game-header" id="gameHeader">
+        <div class="current-game-title" id="currentGameTitle"></div>
+        <button class="back-button" id="backButton">Main Menu</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="game-container">
+        <!-- Main Menu -->
+        <div class="main-menu" id="mainMenu">
+            <h1 class="arcade-title">ARCADE GAMES</h1>
+            <p class="arcade-subtitle">All Games in One Place</p>
+
+            <div class="menu-cards">
+                <!-- Space Invaders Card -->
+                <div class="menu-card" data-game="space-invaders">
+                    <div class="menu-icon">👾</div>
+                    <h2 class="menu-card-title">Space Invaders</h2>
+                    <p class="menu-card-description">
+                        Defend Earth from waves of alien invaders. Classic arcade action!
+                    </p>
+                </div>
+
+                <!-- Modern Galaxian Card -->
+                <div class="menu-card" data-game="modern-galaxian">
+                    <div class="menu-icon">🚀</div>
+                    <h2 class="menu-card-title">Modern Galaxian</h2>
+                    <p class="menu-card-description">
+                        Battle through waves with power-ups and boss fights!
+                    </p>
+                </div>
+
+                <!-- Super Breakout Card -->
+                <div class="menu-card" data-game="super-breakout">
+                    <div class="menu-icon">🎯</div>
+                    <h2 class="menu-card-title">Super Breakout</h2>
+                    <p class="menu-card-description">
+                        Smash bricks and chain combos in this elegant edition!
+                    </p>
+                </div>
+            </div>
+
+            <div class="menu-footer">
+                <p>Select a game above to start playing • Use keyboard or mouse controls</p>
+            </div>
+        </div>
+
+        <!-- Game Frames (iframes for isolated game environments) -->
+        <iframe id="spaceInvadersFrame" class="game-frame" src="space-invaders.html"></iframe>
+        <iframe id="modernGalaxianFrame" class="game-frame" src="modern-galaxian.html"></iframe>
+        <iframe id="superBreakoutFrame" class="game-frame" src="super-breakout-claude-code.html"></iframe>
+    </div>
+
+    <script>
+        // Game state management
+        const gameState = {
+            currentGame: null,
+            games: {
+                'space-invaders': {
+                    title: 'Space Invaders',
+                    frameId: 'spaceInvadersFrame'
+                },
+                'modern-galaxian': {
+                    title: 'Modern Galaxian',
+                    frameId: 'modernGalaxianFrame'
+                },
+                'super-breakout': {
+                    title: 'Super Breakout',
+                    frameId: 'superBreakoutFrame'
+                }
+            }
+        };
+
+        // DOM elements
+        const mainMenu = document.getElementById('mainMenu');
+        const gameHeader = document.getElementById('gameHeader');
+        const currentGameTitle = document.getElementById('currentGameTitle');
+        const backButton = document.getElementById('backButton');
+        const loading = document.getElementById('loading');
+        const menuCards = document.querySelectorAll('.menu-card');
+
+        // Load game
+        function loadGame(gameName) {
+            const game = gameState.games[gameName];
+            if (!game) return;
+
+            // Show loading
+            loading.classList.add('active');
+
+            // Hide menu
+            mainMenu.classList.add('hidden');
+
+            // Update header
+            currentGameTitle.textContent = game.title;
+            gameHeader.classList.add('active');
+
+            // Show game frame after short delay (simulating load)
+            setTimeout(() => {
+                const gameFrame = document.getElementById(game.frameId);
+                gameFrame.classList.add('active');
+
+                // Reload iframe to restart game
+                gameFrame.src = gameFrame.src;
+
+                loading.classList.remove('active');
+                gameState.currentGame = gameName;
+            }, 500);
+        }
+
+        // Return to main menu
+        function returnToMenu() {
+            // Hide all game frames
+            document.querySelectorAll('.game-frame').forEach(frame => {
+                frame.classList.remove('active');
+            });
+
+            // Hide header
+            gameHeader.classList.remove('active');
+
+            // Show menu
+            mainMenu.classList.remove('hidden');
+
+            // Reset state
+            gameState.currentGame = null;
+        }
+
+        // Event listeners for menu cards
+        menuCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const gameName = card.getAttribute('data-game');
+                loadGame(gameName);
+            });
+
+            // Keyboard support
+            card.setAttribute('tabindex', '0');
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const gameName = card.getAttribute('data-game');
+                    loadGame(gameName);
+                }
+            });
+        });
+
+        // Back button
+        backButton.addEventListener('click', returnToMenu);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // ESC key returns to menu when in game
+            if (e.key === 'Escape' && gameState.currentGame) {
+                returnToMenu();
+            }
+        });
+
+        // Prevent iframe scrolling
+        document.querySelectorAll('.game-frame').forEach(frame => {
+            frame.addEventListener('load', () => {
+                try {
+                    frame.contentWindow.document.body.style.overflow = 'hidden';
+                } catch (e) {
+                    // Cross-origin restriction, ignore
+                }
+            });
+        });
+
+        // Add keyboard navigation for menu
+        let selectedCard = 0;
+        const cards = Array.from(menuCards);
+
+        document.addEventListener('keydown', (e) => {
+            if (gameState.currentGame || mainMenu.classList.contains('hidden')) return;
+
+            if (e.key === 'ArrowRight') {
+                selectedCard = (selectedCard + 1) % cards.length;
+                cards[selectedCard].focus();
+            } else if (e.key === 'ArrowLeft') {
+                selectedCard = (selectedCard - 1 + cards.length) % cards.length;
+                cards[selectedCard].focus();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedCard = (selectedCard + (e.key === 'ArrowDown' ? 1 : -1) + cards.length) % cards.length;
+                cards[selectedCard].focus();
+            }
+        });
+
+        // Preload iframes in background
+        window.addEventListener('load', () => {
+            // Frames are already loading via src attribute
+            console.log('Arcade Games Ready');
+        });
+    </script>
+</body>
+</html>
